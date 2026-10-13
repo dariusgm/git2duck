@@ -9,7 +9,16 @@ on:
 jobs:
   build-test:
     runs-on: ubuntu-latest
+    env:
+      # bundled DuckDB is huge with debuginfo; keep the runner disk from filling up
+      CARGO_PROFILE_DEV_DEBUG: "0"
+      CARGO_PROFILE_TEST_DEBUG: "0"
     steps:
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc /usr/local/.ghcup /opt/hostedtoolcache/CodeQL
+          df -h /
+
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -76,11 +85,11 @@ jobs:
             duckdb_platform: osx_amd64
             lib_name: libgit2duck.dylib
           - name: git2duck_win_amd64
-            runs-on: windows-latest
+            runs-on: windows-2022
             duckdb_platform: windows_amd64
             lib_name: git2duck.dll
           - name: git2duck_win_arm64
-            runs-on: windows-latest
+            runs-on: windows-2022
             duckdb_platform: windows_arm64
             lib_name: git2duck.dll
             build_target: aarch64-pc-windows-msvc
@@ -95,6 +104,7 @@ jobs:
         uses: dtolnay/rust-toolchain@master
         with:
           toolchain: stable
+          targets: ${{ matrix.build_target }}
 
       - name: Cache cargo
         uses: Swatinem/rust-cache@v2
