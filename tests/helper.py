@@ -27,9 +27,10 @@ def find_extension(debug: bool = False) -> str:
         if packager.exists():
             import duckdb
 
-            # The metadata must match the DuckDB build that loads the extension.
+            # With the C_STRUCT ABI the version field is the DuckDB *C API* version the
+            # extension targets (not the engine version); the platform must match the host.
+            c_api_version = os.environ.get("GIT2DUCK_C_API_VERSION", "v1.2.0")
             probe = duckdb.connect(":memory:")
-            duckdb_version = probe.execute("SELECT version()").fetchone()[0]
             duckdb_platform = probe.execute("PRAGMA platform").fetchone()[0]
             probe.close()
             cmd = [
@@ -44,7 +45,7 @@ def find_extension(debug: bool = False) -> str:
                 "--duckdb-platform",
                 duckdb_platform,
                 "--duckdb-version",
-                duckdb_version,
+                c_api_version,
                 "--extension-version",
                 "v0.1.0",
                 "--abi-type",
