@@ -44,7 +44,7 @@ jobs:
         run: cargo clippy --all-targets --all-features -- -D warnings
 
       - name: Set up Python 3.13
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: '3.13'
 
@@ -104,7 +104,7 @@ jobs:
         uses: Swatinem/rust-cache@v2
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: '3.13'
 
