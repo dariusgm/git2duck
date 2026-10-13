@@ -84,15 +84,6 @@ jobs:
             runs-on: macos-15-intel
             duckdb_platform: osx_amd64
             lib_name: libgit2duck.dylib
-          - name: git2duck_win_amd64
-            runs-on: windows-2022
-            duckdb_platform: windows_amd64
-            lib_name: git2duck.dll
-          - name: git2duck_win_arm64
-            runs-on: windows-2022
-            duckdb_platform: windows_arm64
-            lib_name: git2duck.dll
-            build_target: aarch64-pc-windows-msvc
     runs-on: ${{ matrix.runs-on }}
     env:
       DUCKDB_VERSION: v1.2.0
