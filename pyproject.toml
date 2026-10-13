@@ -1,0 +1,14 @@
+[project]
+name = "git2duck-py-e2e"
+version = "0.1.0"
+description = "Python E2E tests for git2duck DuckDB extension"
+requires-python = ">=3.10"
+
+dependencies = [
+  "duckdb==1.4.1",
+  "pytest>=8.2",
+]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]

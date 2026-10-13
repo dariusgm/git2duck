@@ -1,0 +1,145 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust (stable)
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: stable
+          components: clippy, rustfmt
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build
+        run: cargo build --verbose
+
+      - name: Test
+        run: cargo test --all-targets --all-features --verbose
+
+      - name: Format check
+        run: cargo fmt --all -- --check
+
+      - name: Clippy (deny warnings)
+        run: cargo clippy --all-targets --all-features -- -D warnings
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: 'latest'
+
+      - name: Python deps (uv sync)
+        run: uv sync
+
+      - name: Python E2E tests (pytest via uv)
+        env:
+          # allow network tests marked with @pytest.mark.network
+          PYTEST_ADDOPTS: "-q"
+        run: uv run pytest
+
+  build-extensions:
+    name: Build DuckDB Extensions (${{ matrix.name }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: git2duck_linux_amd64
+            runs-on: ubuntu-latest
+            duckdb_platform: linux_amd64
+            lib_name: libgit2duck.so
+          - name: git2duck_linux_arm64
+            runs-on: ubuntu-24.04-arm
+            duckdb_platform: linux_arm64
+            lib_name: libgit2duck.so
+          - name: git2duck_mac_arm64
+            runs-on: macos-14
+            duckdb_platform: osx_arm64
+            lib_name: libgit2duck.dylib
+          - name: git2duck_mac_amd64
+            runs-on: macos-15-intel
+            duckdb_platform: osx_amd64
+            lib_name: libgit2duck.dylib
+          - name: git2duck_win_amd64
+            runs-on: windows-latest
+            duckdb_platform: windows_amd64
+            lib_name: git2duck.dll
+          - name: git2duck_win_arm64
+            runs-on: windows-latest
+            duckdb_platform: windows_arm64
+            lib_name: git2duck.dll
+            build_target: aarch64-pc-windows-msvc
+    runs-on: ${{ matrix.runs-on }}
+    env:
+      DUCKDB_VERSION: v1.2.0
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust (stable)
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: stable
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Clone DuckDB extension-ci-tools
+        run: |
+          git clone --depth 1 https://github.com/duckdb/extension-ci-tools.git ci-tools
+
+      - name: Build cdylib (release, ext)
+        run: |
+          if [ -n "${{ matrix.build_target }}" ]; then
+            cargo build --release --features ext --target ${{ matrix.build_target }}
+          else
+            cargo build --release --features ext
+          fi
+        shell: bash
+
+      - name: Package .duckdb_extension
+        run: |
+          set -euo pipefail
+          TARGET_DIR="release"
+          if [ -n "${{ matrix.build_target }}" ]; then
+            TARGET_DIR="${{ matrix.build_target }}/release"
+          fi
+          LIB_PATH="target/${TARGET_DIR}/${{ matrix.lib_name }}"
+          OUT_PATH="target/release/git2duck.duckdb_extension"
+          python3 ci-tools/scripts/append_extension_metadata.py \
+            --library-file "$LIB_PATH" \
+            --extension-name git2duck \
+            --out-file "$OUT_PATH" \
+            --duckdb-platform "${{ matrix.duckdb_platform }}" \
+            --duckdb-version "$DUCKDB_VERSION" \
+            --extension-version "v0.1.0" \
+            --abi-type C_STRUCT
+          echo "Packaged: $OUT_PATH"
+        shell: bash
+
+      - name: Upload DuckDB extension artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.name }}
+          path: target/release/git2duck.duckdb_extension
+          retention-days: 7
