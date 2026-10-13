@@ -578,7 +578,7 @@ checksum = "2a093eed1c714143b257b95fa323e38527fabf05fbf02bb0d5d2045275ffdaef"
 dependencies = [
  "arrow",
  "cast",
- "duckdb-loadable-macros",
+ "duckdb-loadable-macros 0.1.11",
  "fallible-iterator",
  "fallible-streaming-iterator",
  "hashlink",
@@ -593,6 +593,18 @@ name = "duckdb-loadable-macros"
 version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d835a5a286d1d5dee8b5bbacf106ef4dc13877946381f48b2a2ae65f295fc998"
+dependencies = [
+ "darling",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.109",
+]
+
+[[package]]
+name = "duckdb-loadable-macros"
+version = "1.10506.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a18b7f89eba02237dbbff3e640f2034a135fdfa0283c622709b2c5af88d02b78"
 dependencies = [
  "darling",
  "proc-macro2",
@@ -802,7 +814,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "duckdb",
- "duckdb-loadable-macros",
+ "duckdb-loadable-macros 1.10506.0",
  "gix",
  "libc",
  "libduckdb-sys",

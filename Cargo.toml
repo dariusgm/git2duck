@@ -13,7 +13,7 @@ anyhow = "1.0"
 serde_json = "1.0"
 libc = "0.2"
 duckdb = { version = "1.4", features = ["bundled", "vtab-loadable"] }
-duckdb-loadable-macros = "0.1"
+duckdb-loadable-macros = "1.10506"
 libduckdb-sys = "1.4"
 tempfile = "3.10"
 similar = "2.5"
