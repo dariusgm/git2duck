@@ -53,6 +53,9 @@ jobs:
         with:
           version: 'latest'
 
+      - name: Clone DuckDB extension-ci-tools (for packaging in pytest)
+        run: git clone --depth 1 https://github.com/duckdb/extension-ci-tools.git extension-ci-tools
+
       - name: Python deps (uv sync)
         run: uv sync
 

@@ -29,3 +29,4 @@ flamegraph-*.svg
 __pycache__/
 *.pyc
 .venv/
+extension-ci-tools/

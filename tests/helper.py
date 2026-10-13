@@ -23,8 +23,15 @@ def find_extension(debug: bool = False) -> str:
         except Exception:
             needs_pack = True
     if needs_pack and so_path.exists():
-        packager = Path(os.environ.get("GIT2DUCK_PACKAGER", "extension-ci-tools/scripts/append_extension_metadata.py"))
+        packager = Path(os.environ.get("GIT2DUCK_PACKAGER", str(ROOT / "extension-ci-tools" / "scripts" / "append_extension_metadata.py")))
         if packager.exists():
+            import duckdb
+
+            # The metadata must match the DuckDB build that loads the extension.
+            probe = duckdb.connect(":memory:")
+            duckdb_version = probe.execute("SELECT version()").fetchone()[0]
+            duckdb_platform = probe.execute("PRAGMA platform").fetchone()[0]
+            probe.close()
             cmd = [
                 sys.executable,
                 str(packager),
@@ -35,9 +42,9 @@ def find_extension(debug: bool = False) -> str:
                 "--out-file",
                 str(ext_path),
                 "--duckdb-platform",
-                "linux_amd64",
+                duckdb_platform,
                 "--duckdb-version",
-                "v1.2.0",
+                duckdb_version,
                 "--extension-version",
                 "v0.1.0",
                 "--abi-type",
