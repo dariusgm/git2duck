@@ -1,6 +1,4 @@
 use anyhow::Context;
-#[cfg(feature = "ext")]
-use duckdb::ffi;
 use duckdb::{
     core::{DataChunkHandle, Inserter, LogicalTypeHandle, LogicalTypeId},
     vtab::{BindInfo, InitInfo, TableFunctionInfo, VTab},
@@ -73,7 +71,7 @@ impl GitVTab {
         while let Some(Ok(mut r)) = iter.next() {
             if let Some(target) = r.try_id() {
                 queue.push_back(target.into());
-            } else if let Ok(id) = r.peel_to_id_in_place() {
+            } else if let Ok(id) = r.peel_to_id() {
                 queue.push_back(id.detach());
             }
         }
@@ -379,12 +377,12 @@ impl VTab for GitVTab {
         let file_changes_vec = output.flat_vector(11);
 
         // Get direct access to i64 buffers
-        let time_slice = time_vec.as_mut_slice::<i64>();
-        let added_slice = added_vec.as_mut_slice::<i64>();
-        let modified_slice = modified_vec.as_mut_slice::<i64>();
-        let deleted_slice = deleted_vec.as_mut_slice::<i64>();
-        let files_slice = files_vec.as_mut_slice::<i64>();
-        let is_merge_slice = is_merge_vec.as_mut_slice::<bool>();
+        let time_slice = unsafe { time_vec.as_mut_slice::<i64>() };
+        let added_slice = unsafe { added_vec.as_mut_slice::<i64>() };
+        let modified_slice = unsafe { modified_vec.as_mut_slice::<i64>() };
+        let deleted_slice = unsafe { deleted_vec.as_mut_slice::<i64>() };
+        let files_slice = unsafe { files_vec.as_mut_slice::<i64>() };
+        let is_merge_slice = unsafe { is_merge_vec.as_mut_slice::<bool>() };
 
         for i in 0..chunk_size {
             let commit = &commits[*index + i];
@@ -545,7 +543,7 @@ impl VTab for BranchesVTab {
                 // resolve tip
                 let head_id = if let Some(id) = r.try_id() {
                     id.into()
-                } else if let Ok(id) = r.peel_to_id_in_place() {
+                } else if let Ok(id) = r.peel_to_id() {
                     id.detach()
                 } else {
                     continue;
@@ -632,8 +630,8 @@ impl VTab for BranchesVTab {
         let branch_vec = output.flat_vector(1);
         let mut value_vec = output.flat_vector(2);
 
-        let ts_slice = ts_vec.as_mut_slice::<i64>();
-        let value_slice = value_vec.as_mut_slice::<i64>();
+        let ts_slice = unsafe { ts_vec.as_mut_slice::<i64>() };
+        let value_slice = unsafe { value_vec.as_mut_slice::<i64>() };
 
         for i in 0..chunk_size {
             let row = &rows[*index + i];
@@ -926,12 +924,12 @@ impl VTab for FeatureMetricsVTab {
         let mut net_vec = output.flat_vector(5);
         let mut merges_vec = output.flat_vector(6);
 
-        let ts_slice = ts_vec.as_mut_slice::<i64>();
-        let added_slice = added_vec.as_mut_slice::<i64>();
-        let deleted_slice = deleted_vec.as_mut_slice::<i64>();
-        let changed_slice = changed_vec.as_mut_slice::<i64>();
-        let net_slice = net_vec.as_mut_slice::<i64>();
-        let merges_slice = merges_vec.as_mut_slice::<i64>();
+        let ts_slice = unsafe { ts_vec.as_mut_slice::<i64>() };
+        let added_slice = unsafe { added_vec.as_mut_slice::<i64>() };
+        let deleted_slice = unsafe { deleted_vec.as_mut_slice::<i64>() };
+        let changed_slice = unsafe { changed_vec.as_mut_slice::<i64>() };
+        let net_slice = unsafe { net_vec.as_mut_slice::<i64>() };
+        let merges_slice = unsafe { merges_vec.as_mut_slice::<i64>() };
 
         for i in 0..chunk_size {
             let row = &rows[*index + i];
@@ -1043,7 +1041,7 @@ impl VTab for TagsVTab {
                 // try get target id
                 let target_oid = if let Some(id) = r.try_id() {
                     id.into()
-                } else if let Ok(id) = r.peel_to_id_in_place() {
+                } else if let Ok(id) = r.peel_to_id() {
                     id.detach()
                 } else {
                     continue;
@@ -1132,8 +1130,8 @@ impl VTab for TagsVTab {
         let mut time_vec = output.flat_vector(5);
         let message_vec = output.flat_vector(6);
 
-        let ann_slice = ann_vec.as_mut_slice::<bool>();
-        let time_slice = time_vec.as_mut_slice::<i64>();
+        let ann_slice = unsafe { ann_vec.as_mut_slice::<bool>() };
+        let time_slice = unsafe { time_vec.as_mut_slice::<i64>() };
 
         for i in 0..chunk_size {
             let row = &rows[*index + i];
