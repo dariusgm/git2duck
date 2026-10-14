@@ -5,7 +5,7 @@ description = "Python E2E tests for git2duck DuckDB extension"
 requires-python = ">=3.10"
 
 dependencies = [
-  "duckdb==1.4.1",
+  "duckdb==1.5.6",
   "pytest>=8.2",
 ]
 
