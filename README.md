@@ -119,6 +119,43 @@ cargo build --release --features ext
 
 This produces `target/release/libgit2duck.so` (or `.dylib` on macOS, `.dll` on Windows).
 
+### Supported Platforms
+
+CI builds and tests the extension on **Linux** (`linux_amd64` and `linux_arm64`).
+macOS and Windows are not built in CI at the moment; the code is portable and can be built locally.
+If you need prebuilt binaries for another platform, please open an issue.
+
+### Building on macOS (and Windows)
+
+The steps are the same as on Linux; only the shared-library name and the DuckDB platform string differ.
+
+```bash
+# 1. Build the shared library with the loadable entrypoint
+cargo build --release --features ext
+#    -> target/release/libgit2duck.dylib   (macOS)
+#    -> target/release/git2duck.dll        (Windows)
+
+# 2. Clone the packaging tools (one-time)
+git clone --depth 1 https://github.com/duckdb/extension-ci-tools.git
+
+# 3. Append the DuckDB extension metadata
+python3 extension-ci-tools/scripts/append_extension_metadata.py \
+  --library-file target/release/libgit2duck.dylib \
+  --extension-name git2duck \
+  --out-file target/release/git2duck.duckdb_extension \
+  --duckdb-platform osx_arm64 \
+  --duckdb-version v1.2.0 \
+  --extension-version v0.1.0 \
+  --abi-type C_STRUCT
+```
+
+Pick the platform string that matches your machine: `osx_arm64` (Apple Silicon), `osx_amd64` (Intel Mac),
+`windows_amd64` or `windows_arm64`. `--duckdb-version` is the DuckDB C API version the extension targets
+(`v1.2.0`, see the packaging section below). Windows builds additionally need the MSVC toolchain; at the time of
+writing the bundled DuckDB did not compile with the newest Visual Studio, so use Visual Studio 2022.
+
+Load it in DuckDB with `allow_unsigned_extensions` enabled, as described in the Usage section.
+
 ### Package the DuckDB Extension Artifact (optional)
 
 If you want DuckDB to load the packaged `*.duckdb_extension` file by default (instead of the shared library),

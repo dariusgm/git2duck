@@ -79,14 +79,6 @@ jobs:
             runs-on: ubuntu-24.04-arm
             duckdb_platform: linux_arm64
             lib_name: libgit2duck.so
-          - name: git2duck_mac_arm64
-            runs-on: macos-14
-            duckdb_platform: osx_arm64
-            lib_name: libgit2duck.dylib
-          - name: git2duck_mac_amd64
-            runs-on: macos-15-intel
-            duckdb_platform: osx_amd64
-            lib_name: libgit2duck.dylib
     runs-on: ${{ matrix.runs-on }}
     env:
       DUCKDB_VERSION: v1.2.0
