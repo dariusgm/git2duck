@@ -76,7 +76,7 @@ jobs:
             duckdb_platform: linux_amd64
             lib_name: libgit2duck.so
           - name: git2duck_linux_arm64
-            runs-on: ubuntu-24.04-arm
+            runs-on: ubuntu-26.04-arm
             duckdb_platform: linux_arm64
             lib_name: libgit2duck.so
     runs-on: ${{ matrix.runs-on }}
