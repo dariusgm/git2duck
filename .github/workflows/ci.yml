@@ -8,7 +8,7 @@ on:
 
 jobs:
   build-test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     env:
       # bundled DuckDB is huge with debuginfo; keep the runner disk from filling up
       CARGO_PROFILE_DEV_DEBUG: "0"
@@ -72,7 +72,7 @@ jobs:
       matrix:
         include:
           - name: git2duck_linux_amd64
-            runs-on: ubuntu-latest
+            runs-on: ubuntu-26.04
             duckdb_platform: linux_amd64
             lib_name: libgit2duck.so
           - name: git2duck_linux_arm64

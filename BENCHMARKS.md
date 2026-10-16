@@ -163,7 +163,7 @@ Capture the following:
 7. Code simplification (583 fewer lines) improved maintainability without sacrificing performance
 
 ### Next Steps
-See `FUTURE_OPTIMIZATIONS.md` for potential further improvements:
+See [`docs/notes/FUTURE_OPTIMIZATIONS.md`](docs/notes/FUTURE_OPTIMIZATIONS.md) for potential further improvements:
 - Batch blob loading (10-20% potential gain)
 - Profile-guided optimization (5-15% potential gain)
 - Parallel blob diff computation optimization

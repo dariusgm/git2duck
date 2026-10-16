@@ -2,6 +2,12 @@
 name = "git2duck_duckdb"
 version = "0.1.0"
 edition = "2021"
+description = "DuckDB extension that exposes Git repository history (commits, line metrics, branches, tags) as SQL table functions"
+license = "MIT"
+repository = "https://github.com/dariusgm/git2duck"
+readme = "README.md"
+keywords = ["duckdb", "git", "sql", "analytics", "extension"]
+categories = ["database", "development-tools"]
 
 [lib]
 name = "git2duck"
