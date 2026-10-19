@@ -14,7 +14,7 @@ name = "git2duck"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-gix = { version = "0.75", features = ["blocking-network-client", "blocking-http-transport-reqwest-rust-tls"] }
+gix = { version = "0.89", features = ["blocking-network-client", "blocking-http-transport-reqwest-rust-tls"] }
 anyhow = "1.0"
 serde_json = "1.0"
 libc = "0.2"
