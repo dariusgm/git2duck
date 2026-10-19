@@ -1239,7 +1239,7 @@ fn compute_line_metrics(
                         adds.push((location.to_string(), id.detach()));
                     }
                 }
-                Ok::<_, anyhow::Error>(gix::object::tree::diff::Action::Continue)
+                Ok::<_, gix::Error>(std::ops::ControlFlow::Continue(()))
             })?;
 
         Ok((mods, adds, dels))
